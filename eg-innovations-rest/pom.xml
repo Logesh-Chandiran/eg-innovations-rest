@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>org.grassfield</groupId>
-	<artifactId>eginnovations</artifactId>
+	<artifactId>eg-innovations-rest</artifactId>
 	<version>1.0</version>
 	<name>eg-innovations-rest</name>
 	<description>eG Innovations REST API</description>
@@ -70,7 +70,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.grassfield</groupId>
-			<artifactId>eginnovations</artifactId>
+			<artifactId>rest-api-entity</artifactId>
 			<version>1.0</version>
 		</dependency>
 	</dependencies>
