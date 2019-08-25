@@ -37,6 +37,11 @@ public class ResultParser {
 		}
 		
 		for (String line:al) {
+			if (line.trim().equals("")) {
+				logger.info("Ignore "+line);
+				continue;
+			}
+			
 			result.add(new Agent(line, "~Hash~"));
 		}
 		
