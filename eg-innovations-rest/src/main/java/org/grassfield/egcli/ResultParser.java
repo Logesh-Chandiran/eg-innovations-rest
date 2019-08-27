@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.grassfield.egcli.entity.Agent;
+import org.grassfield.egcli.entity.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,14 +38,27 @@ public class ResultParser {
 		}
 		
 		for (String line:al) {
-			if (line.trim().equals("")) {
-				logger.info("Ignore "+line);
+			if (line.trim().startsWith("AgentName")) {
+				logger.info("Ignore title "+line);
 				continue;
 			}
 			
 			result.add(new Agent(line, "~Hash~"));
 		}
 		
+		return result;
+	}
+
+	public static List<Component> getComponents(String type, List<String> al) {
+		System.out.println("al:"+al);
+		List<Component> result = new ArrayList<Component>();
+		for (String line:al) {
+			if (line.startsWith("HostIP~Hash~")) {
+				logger.info("skipping header line "+line);
+				continue;
+			}
+			result.add(new Component(type, line, "~Hash~"));
+		}
 		return result;
 	}
 
