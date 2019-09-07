@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.grassfield.egcli.entity.Agent;
 import org.grassfield.egcli.entity.Component;
+import org.grassfield.egcli.entity.MaintenancePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,5 +62,19 @@ public class ResultParser {
 		}
 		return result;
 	}
+
+	public static List<MaintenancePolicy> getMaintenancePolicyNames(List<String> al) {
+		List<MaintenancePolicy> result = new ArrayList<MaintenancePolicy>();
+		for (String line:al) {
+			if (line.startsWith("Policy Names~Hash~")) {
+				logger.info("skipping header line "+line);
+				continue;
+			}
+			result.add(new MaintenancePolicy(line));
+		}
+		return result;
+	}
+
+	
 
 }

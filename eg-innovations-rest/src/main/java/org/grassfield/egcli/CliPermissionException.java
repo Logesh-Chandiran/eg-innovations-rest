@@ -1,6 +1,6 @@
 package org.grassfield.egcli;
 
-public class CliPermissionException extends Exception {
+public class CliPermissionException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 

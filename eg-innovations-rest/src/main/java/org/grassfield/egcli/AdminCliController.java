@@ -7,8 +7,11 @@ import java.util.Map;
 
 import org.grassfield.egcli.entity.Agent;
 import org.grassfield.egcli.entity.Component;
+import org.grassfield.egcli.entity.MaintenancePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -17,17 +20,19 @@ import org.springframework.web.bind.annotation.RestController;
 import com.eg.cli.CLIClientBase;
 
 @RestController
-public class RemoteAgentController {
-	static Logger logger = LoggerFactory.getLogger(RemoteAgentController.class);
+public class AdminCliController {
+	static Logger logger = LoggerFactory.getLogger(AdminCliController.class);
 
 	@SuppressWarnings("unchecked")
-	@PostMapping("/rest/v1")
+	@PostMapping("/rest/v1/{action}/{element}")
     List<?> findAll(
     		@RequestHeader("Authorization") String authorization,
     		@RequestHeader("manager-host") String managerHost,
     		@RequestHeader("manager-port") String managerPort,
     		@RequestHeader("manager-ssl") String managerSsl,
-    		@RequestBody Command command) throws CliPermissionException {
+    		@PathVariable String action,
+    		@PathVariable String element,
+    		@RequestBody (required=false) Command command) {
 		logger.info("Received request");
 		if (authorization==null) {
 			throw new CliPermissionException("Authorization is not provided");
@@ -47,13 +52,18 @@ public class RemoteAgentController {
 		
 		@SuppressWarnings("rawtypes")
 		Hashtable ht = new Hashtable();
-		ht.put("element", command.getElement());
-		ht.put("action", command.getAction());
-		Map<String, String> parameters = command.getParameters();
-		if (parameters!=null) {
-			for (String key:parameters.keySet()) {
-				ht.put(key, parameters.get(key));
+		ht.put("element", element);
+		ht.put("action", action);
+		Map<String, String> parameters = null;
+		if (command!=null) {
+			parameters = command.getParameters();
+			if (parameters!=null && !parameters.isEmpty()) {
+				for (String key:parameters.keySet()) {
+					ht.put(key, parameters.get(key));
+				}
 			}
+		}else {
+			logger.info("No command parameters received");
 		}
 		
 		ht.put("username",userName);
@@ -66,7 +76,7 @@ public class RemoteAgentController {
 
 		CLIClientBase cli = new CLIClientBase();
 		List<String> al = cli.doExecuteForREST(ht);
-		logger.info("al:"+al);
+		System.out.println("al:"+al);
 		if (al==null) {
 			logger.error("received no response from CLI");
 			throw new CliFailedException("Unknown Error");
@@ -79,14 +89,21 @@ public class RemoteAgentController {
 			if (outputlc.startsWith("error"))
 				throw new CliFailedException(output);
 		}
-		switch(command.getAction()+command.getElement()) {
+		switch(action+element) {
 		case "showExternalAgent":
+			//reuse showRemoteAgent
 		case "showRemoteAgent":
 			List<Agent> result = ResultParser.getAgents(al);
 			return result;
 		case "showComponent":
-			List<Component> cList = ResultParser.getComponents(parameters.get("componenttype"),al);
-			return cList;
+			if (parameters!=null) {
+				List<Component> cList = ResultParser.getComponents(parameters.get("componenttype"),al);
+				return cList;
+			}else
+				throw new CliFailedException("componenttype parameter is missing");
+    	case "showMaintenancePolicy":
+				List<MaintenancePolicy> cList = ResultParser.getMaintenancePolicyNames(al);
+				return cList;
 		}
 		return null;
     }
