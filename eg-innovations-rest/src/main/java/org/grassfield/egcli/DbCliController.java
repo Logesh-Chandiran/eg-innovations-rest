@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -79,6 +81,47 @@ public class DbCliController {
 		List<Map<String,String>> restOut = DBUtilities.format(lines);
 		return restOut;
     }
+	
+	@PostMapping("/rest/v1/data/query")
+    List<?> query(
+    		@RequestBody  Map<String, String> paramMap
+    		) throws IOException, InterruptedException {
+		logger.info("Received request /rest/v1/data/query");
+		System.out.println("Received request");
+		String cliHome = this.env.getProperty("egcli.home");
+		String cliAccount = this.env.getProperty("egcli.account");
+		String cliExec = this.env.getProperty("egcli.executable");
+		String cliCsvOutputFolder = this.env.getProperty("egcli.csv.output.folder");
+		
+		String outputFile = "query-output";
+		
+		List<String> commandList = new ArrayList<String>();
+		commandList.add(cliExec);
+		commandList.add("-managerid");
+		commandList.add(cliAccount);
+		commandList.add("-format");
+		commandList.add("csv");
+		commandList.add("-filename");
+		commandList.add(outputFile);
+		commandList.add("-query");
+		commandList.add("\""+paramMap.get("query")+"\"");
+		
+		System.out.println("commandList:"+commandList);
+		
+		ProcessBuilder processBuilder = new ProcessBuilder(commandList);
+		Process p = processBuilder.start();
+		InputStream inputStream = p.getInputStream();
+		InputStream errorStream = p.getErrorStream();
+		List<String> out = read (inputStream);
+		List<String> err = read (errorStream);
+		p.waitFor();
+		System.out.println(out);
+		System.out.println(err);
+		Path path = Paths.get(cliCsvOutputFolder+"/"+outputFile+".csv");
+		List<String> lines = Files.readAllLines(path);
+		List<Map<String,String>> restOut = DBUtilities.format(lines);
+		return restOut;
+	}
 
 	private List<String> read(InputStream inputStream) throws IOException {
 		List<String> result = new ArrayList<String>();
