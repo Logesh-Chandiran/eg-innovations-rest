@@ -62,10 +62,16 @@
 		    <version>3.9</version>
 		</dependency>
 		
-		<dependency>
+		<!--dependency>
 			<groupId>com.eginnovations</groupId>
 			<artifactId>cli</artifactId>
 			<version>1.0</version>
+			<scope>compile</scope>
+		</dependency-->
+		<dependency>
+			<groupId>com.eginnovations</groupId>
+			<artifactId>cli</artifactId>
+			<version>7.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
