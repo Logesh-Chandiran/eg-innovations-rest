@@ -18,6 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.eg.cli.CLIClientBase;
 
+/**
+ * @author Ramaiah Murugapandian
+ *
+ */
 @RestController
 public class AdminCliController {
 	static Logger logger = LoggerFactory.getLogger(AdminCliController.class);
