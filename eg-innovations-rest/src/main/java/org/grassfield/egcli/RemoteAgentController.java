@@ -27,7 +27,7 @@ public class RemoteAgentController {
     		@RequestHeader("manager-host") String managerHost,
     		@RequestHeader("manager-port") String managerPort,
     		@RequestHeader("manager-ssl") String managerSsl,
-    		@RequestBody Command command) throws CliPermissionException {
+    		@RequestBody Command command) throws Exception {
 		logger.info("Received request");
 		if (authorization==null) {
 			throw new CliPermissionException("Authorization is not provided");

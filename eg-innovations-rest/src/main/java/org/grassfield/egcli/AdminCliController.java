@@ -31,7 +31,7 @@ public class AdminCliController {
     		@RequestHeader("manager-ssl") String managerSsl,
     		@PathVariable String action,
     		@PathVariable String element,
-    		@RequestBody (required=false) Command command) {
+    		@RequestBody (required=false) Command command) throws Exception {
 		logger.info("Received request");
 		if (authorization==null) {
 			throw new CliPermissionException("Authorization is not provided");
