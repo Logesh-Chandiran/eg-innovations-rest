@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.eg.cli.CLIClientBase;
 
 /**
+ * REST controller for eG Admin CLI
  * @author Ramaiah Murugapandian
  *
  */	

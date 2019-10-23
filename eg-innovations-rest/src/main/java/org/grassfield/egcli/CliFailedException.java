@@ -1,5 +1,10 @@
 package org.grassfield.egcli;
 
+/**
+ * Exception class for CLI failures
+ * @author Ramaiah Murugapandian
+ *
+ */
 public class CliFailedException extends RuntimeException {
 
 	/**

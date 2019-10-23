@@ -2,6 +2,11 @@ package org.grassfield.egcli;
 
 import java.util.Map;
 
+/**
+ * Pojo representing inpput command parameters
+ * @author Ramaiah Murugapandian
+ *
+ */
 public class Command {
 	private String element;
 	private String action;
