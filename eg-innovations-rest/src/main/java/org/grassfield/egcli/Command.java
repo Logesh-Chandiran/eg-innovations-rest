@@ -8,7 +8,15 @@ import java.util.Map;
  *
  */
 public class Command {
+	/**
+	 * type of element chosen to interact with eG manager
+	 * for e.g. RemoteAgent
+	 */
 	private String element;
+	/**
+	 * type of action 
+	 * for e.g. show
+	 */
 	private String action;
 	private Map<String, String> parameters;
 	public String getElement() {

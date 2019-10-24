@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The Class DBUtilities.
+ * @author Ramaiah Murugapandian
  */
 public class DBUtilities {
 	static Logger logger = LoggerFactory.getLogger(DbCliController.class);

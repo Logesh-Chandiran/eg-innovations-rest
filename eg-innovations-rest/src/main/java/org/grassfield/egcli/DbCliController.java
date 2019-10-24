@@ -18,7 +18,7 @@ import com.eg.cli.eGDBCLI;
 
 /**
  * The Class DbCliController.
- * @author Murugapandian
+ * @author Ramaiah Murugapandian
  */
 @RestController
 public class DbCliController {

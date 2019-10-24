@@ -10,6 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+/**
+ * CustomGlobalExceptionHandler for REST calls
+ * @author Ramaiah Murugapandian
+ *
+ */
 public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	// Let Spring handle the exception, we just override the status code
     @ExceptionHandler(CliPermissionException.class)
