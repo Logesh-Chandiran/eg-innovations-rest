@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.grassfield.egcli.entity.UnrecognizedAgentException;
 import org.grassfield.egcli.entity.UnrecognizedComponentException;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -15,8 +16,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
  * @author Ramaiah Murugapandian
  *
  */
+@ControllerAdvice
 public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler {
-	// Let Spring handle the exception, we just override the status code
+	    // Let Spring handle the exception, we just override the status code
     @ExceptionHandler(CliPermissionException.class)
     public void springHandleNotFound(HttpServletResponse response) throws IOException {
         response.sendError(HttpStatus.UNAUTHORIZED.value());
@@ -32,4 +34,8 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
         response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value());
     }
     
+    @ExceptionHandler(InvalidPathException.class)
+    public void invalidPathException(HttpServletResponse response) throws IOException {
+        response.sendError(HttpStatus.BAD_REQUEST.value());
+    }
 }

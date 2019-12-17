@@ -1,0 +1,13 @@
+org\grassfield\egcli\CliFailedException.class
+org\grassfield\egcli\RemoteAgentController.class
+org\grassfield\egcli\util\UnexpectedCliOutputException.class
+org\grassfield\egcli\util\PathValidator.class
+org\grassfield\egcli\InvalidPathException.class
+org\grassfield\egcli\util\DBUtilities.class
+org\grassfield\egcli\CustomGlobalExceptionHandler.class
+org\grassfield\egcli\CliPermissionException.class
+org\grassfield\egcli\EgInnovationsRestApplication.class
+org\grassfield\egcli\ResultParser.class
+org\grassfield\egcli\Command.class
+org\grassfield\egcli\DbCliController.class
+org\grassfield\egcli\AdminCliController.class

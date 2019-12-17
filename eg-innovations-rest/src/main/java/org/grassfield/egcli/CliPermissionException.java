@@ -7,13 +7,13 @@ package org.grassfield.egcli;
  */
 public class CliPermissionException extends RuntimeException {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * @param string exception message
-	 */
-	public CliPermissionException(String string) {
-		super(string);
-	}
+    /**
+     * @param string exception message
+     */
+    public CliPermissionException(String string) {
+        super(string);
+    }
 
 }

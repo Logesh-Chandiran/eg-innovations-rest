@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: org.grassfield.egcli.EgInnovationsRestApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.365 sec - in org.grassfield.egcli.EgInnovationsRestApplicationTests
