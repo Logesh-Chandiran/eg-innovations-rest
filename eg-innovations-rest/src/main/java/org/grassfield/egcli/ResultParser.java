@@ -8,6 +8,7 @@ import java.util.Map;
 import org.grassfield.egcli.entity.Agent;
 import org.grassfield.egcli.entity.Component;
 import org.grassfield.egcli.entity.MaintenancePolicy;
+import org.grassfield.egcli.entity.MaintenancePolicyAssociatedElements;
 import org.grassfield.egcli.entity.MaintenancePolicyDetails;
 import org.grassfield.egcli.entity.EnableDisableTests;
 import org.grassfield.egcli.entity.ManagedHosts;
@@ -24,7 +25,6 @@ import org.slf4j.LoggerFactory;
  * @author Murugapandian Ramaiah
  */
 public class ResultParser {
-
     /** The logger. */
     static Logger logger = LoggerFactory.getLogger(ResultParser.class);
 
@@ -106,45 +106,157 @@ public class ResultParser {
     * Gets the list of maintenance policy details.
     *
     * @param al the list of string
-    * @return the MaintenancePolicy
+    * @return the MaintenancePolicyDetails
     * @since 1.0
     */
-    public static List<MaintenancePolicyDetails> getMaintenancePolicyDetails(List<String> al) {
+    public static List<MaintenancePolicyDetails> getMaintenancePolicyDetailsList(List<String> al){
         List<MaintenancePolicyDetails> list = new ArrayList<MaintenancePolicyDetails>();
-        MaintenancePolicyDetails details = null;
-        for(String line : al) {
-            line = line.trim();
-            if(line.equals("~Hash~newLine_CSV") || line.equals("newLine_CSV~Hash~") || line.equals("newLine")) {
-                continue;
-            } else if(line.contains("Policy Name")) {
-                if(details != null) {
-                    list.add(details);
+        String value = al.get(0).trim();
+        if(value.startsWith("1) Policy Name")) {
+            int startIndex = 0;
+            for(int i = 1; i < al.size(); i++) {
+                String line = al.get(i);
+                if(line.contains("Policy Name")) {
+                    list.add(getMaintenancePolicyDetails(al.subList(startIndex, i)));
+                    startIndex = i;
                 }
-                details = new MaintenancePolicyDetails();
-                String name = line.substring(line.indexOf("~Hash~") + 6);
-                details.setPolicyName(name);
-            } else if(line.contains("Policy Status")) {
-                String status = line.substring(line.indexOf("~Hash~") + 6);
-                details.setPolicyStatus(status);
-            } else if(line.contains("NextScheduleDate")) {
-                String nextScheduleDate = line.substring(line.indexOf("~Hash~") + 6);
-                details.setNextScheduleDate(nextScheduleDate.trim());
             }
-        }
-        if(details != null) {
-            list.add(details);
+            list.add(getMaintenancePolicyDetails(al.subList(startIndex, al.size())));
+        } else {
+            list.add(getMaintenancePolicyDetails(al));
         }
         return list;
+    }
+    
+    /**
+     * Gets a maintenance policy details.
+     *
+     * @param al the list of string
+     * @return the MaintenancePolicyDetails
+     * @since 1.0
+     */
+    public static MaintenancePolicyDetails getMaintenancePolicyDetails(List<String> al) {
+        MaintenancePolicyDetails policyDetails = null;
+        MaintenancePolicyAssociatedElements associatedElements = null;
+        List<String> tempList = null;
+        for(String line : al) {
+            line = line.trim();
+            if(line.equals("~Hash~newLine_CSV") || line.equals("newLine_CSV~Hash~") || line.equals("newLine") || line.startsWith("[Time Frequency]")) {
+                continue;
+            } else if(line.contains("Policy Name")) {
+                policyDetails = new MaintenancePolicyDetails();
+                String name = line.substring(line.indexOf("~Hash~") + 6);
+                policyDetails.setPolicyName(name);
+            } else if(line.contains("Policy Status")) {
+                String status = line.substring(line.indexOf("~Hash~") + 6);
+                policyDetails.setPolicyStatus(status);
+            } else if(line.contains("[Policy Schedule]")) {
+                tempList = new ArrayList<String>();
+            } else if(line.startsWith("NextScheduleDate")) {
+                if(tempList != null) {
+                    policyDetails.setPolicySchedule(tempList);
+                    tempList = null;
+                }
+                String nextScheduleDate = line.substring(line.indexOf("~Hash~") + 6);
+                policyDetails.setNextScheduleDate(nextScheduleDate.trim());
+            } else if(line.equalsIgnoreCase("[Associated Elements]")) {
+                tempList = al.subList(al.indexOf("   [Associated Elements]"), al.size());
+                //logger.info("Maintenance policy sublist:" + tempList);
+                associatedElements = getAssociatedElements(tempList);
+                policyDetails.setAssociatedElements(associatedElements);
+                break;
+            } else {
+                String[] tokens = line.split("~Hash~");
+                tempList.add(tokens[0].trim() + "=" + tokens[1].trim());
+            }
+        }
+        return policyDetails;
+    }
+    
+    /**
+     * Gets a maintenance policy associated elements as object.
+     *
+     * @param al the list of string
+     * @return the MaintenancePolicyAssociatedElements
+     * @since 1.0
+     */
+    public static MaintenancePolicyAssociatedElements getAssociatedElements(List<String> al) {
+        MaintenancePolicyAssociatedElements associatedElements = new MaintenancePolicyAssociatedElements();
+        List<String> list = null;
+        List<String> values = null;
+        if(al.contains("   [Host]~Hash~ ")) {
+            list = al.subList(al.indexOf("   [Host]~Hash~ ") + 1, al.size());
+            values = getSingleValues(list);
+            associatedElements.setHost(values);
+        }
+        if(al.contains("   [Component]~Hash~ ")) {
+            list = al.subList(al.indexOf("   [Component]~Hash~ ") + 1, al.size());
+            values = getSingleValues(list);
+            associatedElements.setComponent(values);
+        }
+        if(al.contains("   [Test]~Hash~ ")) {
+            list = al.subList(al.indexOf("   [Test]~Hash~ ") + 1, al.size());
+            values = getSingleValues(list);
+            associatedElements.setTest(values);
+        }
+        if(al.contains("   [Host Tests]~Hash~ ")) {
+            list = al.subList(al.indexOf("   [Host Tests]~Hash~ ") + 2, al.size());
+            values = getDoubleValues(list);
+            associatedElements.setHostTests(values);
+        }
+        if(al.contains("   [Component Tests]~Hash~ ")) {
+            list = al.subList(al.indexOf("   [Component Tests]~Hash~ ") + 2, al.size());
+            values = getDoubleValues(list);
+            associatedElements.setComponentTests(values);
+        }
+        if(al.contains("   [Test Descriptors]~Hash~ ")) {
+            list = al.subList(al.indexOf("   [Test Descriptors]~Hash~ ") + 2, al.size());
+            values = getDoubleValues(list);
+            associatedElements.setTestDescriptors(values);
+        }
+        if(al.contains("   [Component Descriptors]~Hash~ ")) {
+            list = al.subList(al.indexOf("   [Component Descriptors]~Hash~ ") + 2, al.size());
+            values = getDoubleValues(list);
+            associatedElements.setComponentDescriptors(values);
+        }
+        return associatedElements;
+    }
+    
+    private static ArrayList<String> getSingleValues(List<String> list) {
+        ArrayList<String> values = new ArrayList<String>();
+        for(String line : list) {
+            if(line.equals("     ~Hash~newLine_CSV")) {
+                break;
+            }
+            String value = line.trim();
+            value = value.substring(0, value.indexOf("~Hash~"));
+            values.add(value);
+        }
+        return values;
+    }
+    
+    private static ArrayList<String> getDoubleValues(List<String> list) {
+        ArrayList<String> values = new ArrayList<String>();
+        for(String line : list) {
+            if(line.equals("     ~Hash~newLine_CSV")) {
+                break;
+            }
+            String value = line.trim();
+            String[] tokens = value.split("~Hash~");
+            String finalValue = null;
+            finalValue = (tokens[0].trim().length() == 0) ? tokens[1].trim() : tokens[0].trim() + "=" + tokens[1].trim();    //giving '=' for separation
+            values.add(finalValue);
+        }
+        return values;
     }
     
     static List<String> enabledTest = null;
     static List<String> disabledTest = null;
     
     /**
-     * Gets the list of maintenance policy names.
+     * Separating enabled & disabled test from list al.
      *
-     * @param al the list of string in AgentName~Hash~HostIP format
-     * @return the MaintenancePolicy
+     * @param al the list of string
      * @since 1.0
      */
     public static void separateTest(List<String> al) {
@@ -327,7 +439,7 @@ public class ResultParser {
     }
     
     /**
-     * Gets the success response in format messageStatus & message.
+     * Gets the success or Failed response in format messageStatus & message.
      *
      * @param al the list of string
      * @return the Response

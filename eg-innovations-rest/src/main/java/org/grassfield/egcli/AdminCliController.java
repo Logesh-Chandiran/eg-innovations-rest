@@ -13,6 +13,7 @@ import org.grassfield.egcli.entity.EnableDisableTests;
 import org.grassfield.egcli.entity.ManagedHosts;
 import org.grassfield.egcli.entity.Response;
 import org.grassfield.egcli.entity.TestsDetails;
+import org.grassfield.egcli.util.PathValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,9 +45,9 @@ public class AdminCliController {
             @RequestBody (required = false) Command command) throws Exception {
         logger.info("Received request");
         
-        //PathValidator validator = new PathValidator();
-        //action = validator.validateAction(action);
-        //element = validator.validateElement(action, element);
+        String[] path = PathValidator.validateActionElement(action, element).split("~");
+        action = path[0];
+        element = path[1];
         
         if (authorization == null) {
             throw new CliPermissionException("Authorization is not provided");
@@ -86,7 +87,7 @@ public class AdminCliController {
         ht.put("managerport",managerPort);
         ht.put("ssl",managerSsl);
 
-        logger.info("Prepared the request map:"+ht);
+        logger.info("Prepared the request map:"+ ht);
 
         CLIClientBase cli = new CLIClientBase();
         List<String> al = cli.doExecuteForREST(ht);
@@ -141,7 +142,7 @@ public class AdminCliController {
             List<MaintenancePolicy> cList = ResultParser.getMaintenancePolicyNames(al);
             return cList;
         case "showPolicyDetailsMaintenancePolicy" : {
-            List<MaintenancePolicyDetails> list = ResultParser.getMaintenancePolicyDetails(al);
+            List<MaintenancePolicyDetails> list = ResultParser.getMaintenancePolicyDetailsList(al);
             return list;
         }
         case "showEnableDisableTests" : {
@@ -172,6 +173,11 @@ public class AdminCliController {
             List<Response> response = ResultParser.parseCliResponse(al);
             return response;
         }
+        case "assignAssignAgents" :
+        case "unassignAssignAgents" : {
+            List<Response> response = ResultParser.parseCliResponse(al);
+            return response;
+        }
         case "AddUserMgmt" :
         case "DeleteUserMgmt" :
         case "ModifyUserMgmt" : 
@@ -193,7 +199,13 @@ public class AdminCliController {
             List<Response> response = ResultParser.parseCliResponse(al);
             return response;
         }
+        default : {
+            List<Response> response = ResultParser.parseCliResponse(al);
+            if(response.size() == 1)
+                return response;
+            else
+                return al;
         }
-        return null;
+        }
     }
 }

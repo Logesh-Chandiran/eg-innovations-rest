@@ -1,5 +1,6 @@
 package org.grassfield.egcli.util;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -8,14 +9,36 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This PathValidator class validates {action} & {element} in URL
- * @author Logesh
+ * PathValidator class validates {action} & {element} in URL
+ * @author Logesh Chandiran
  * 
  */
 
 public class PathValidator {
-    
     private static Logger logger = LoggerFactory.getLogger(PathValidator.class);
+    private static Properties properties;
+    private static InputStream is;
+    
+    public static void readeGOperations() throws IOException {
+        properties = new Properties();
+        is = PathValidator.class.getResourceAsStream("/eGOperations.properties");
+        if(is != null) {
+            properties.load(is);
+            logger.info("eGOperations.properties readed successfully.");
+        }
+        is.close();
+    }
+    
+    public static String validateActionElement(String action, String element) throws Exception {
+        String path = (action + element).toLowerCase();
+        if(properties.containsKey(path)) {
+            return properties.getProperty(path);
+        }
+        throw new InvalidPathException("Invalid path {" + action + "}/{" + element + "}");
+    }
+    
+    
+    /*private static Logger logger = LoggerFactory.getLogger(PathValidator.class);
     private static Properties prop = new Properties();
     InputStream is = this.getClass().getResourceAsStream("/eGOperations.properties");
     
@@ -43,5 +66,6 @@ public class PathValidator {
             }
         }
         throw new InvalidPathException("Invalid path {" + element + "}");
-    }
+    }*/
+    
 }
